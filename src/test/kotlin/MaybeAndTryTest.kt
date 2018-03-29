@@ -10,10 +10,10 @@ class MaybeAndTryTest {
   @Test
   fun test_asMaybeAndTry_shouldWork() {
     /// Setup
-    val m1 = Maybe.some(1)
-    val m2 = Maybe.nothing<Int>()
-    val t1 = Try.success(1)
-    val t2 = Try.failure<Int>()
+    val m1: MaybeType<Int> = Maybe.some(1)
+    val m2: MaybeType<Int> = Maybe.nothing()
+    val t1: MaybeType<Int> = Try.success(1)
+    val t2: MaybeType<Int> = Try.failure()
 
     /// When & Then
     Assert.assertEquals(m1, m1.asMaybe())
@@ -33,16 +33,25 @@ class MaybeAndTryTest {
     val m2 = Maybe.nothing<Int>()
     val m3 = Maybe.wrap(1)
     val m4 = Maybe.wrap<Int>(null)
+    val m5 = Maybe.evaluate { 1 }
+    val m6 = Maybe.evaluate { throw Exception("") }
+    val m7 = Maybe.evaluate { null }
     val t1 = Try.success(1)
     val t2 = Try.failure<Int>("")
     val t3 = Try.wrap(1, "")
     val t4 = Try.wrap<Int>(null, "")
+    val t5 = Try.evaluate({ 1 })
+    val t6 = Try.evaluate({ throw Exception("Error") })
+    val t7 = Try.evaluate({ null }, "Error")
 
     /// When & Then
     Assert.assertEquals(m1.value, 1)
     Assert.assertNull(m2.value)
     Assert.assertEquals(m3.value, 1)
     Assert.assertNull(m4.value)
+    Assert.assertEquals(m5.value, 1)
+    Assert.assertTrue(m6.isNothing)
+    Assert.assertTrue(m7.isNothing)
     Assert.assertEquals(t1.value, 1)
     Assert.assertNull(t1.error)
     Assert.assertNull(t2.value)
@@ -67,6 +76,9 @@ class MaybeAndTryTest {
     Assert.assertFalse(t3.isFailure)
     Assert.assertTrue(t4.isFailure)
     Assert.assertFalse(t4.isSuccess)
+    Assert.assertEquals(t5.value, 1)
+    Assert.assertEquals(t6.error?.message, "Error")
+    Assert.assertEquals(t7.error?.message, "Error")
   }
 
   @Test

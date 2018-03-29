@@ -78,6 +78,17 @@ abstract class Maybe<T> internal constructor(): MaybeType<T> {
     }
 
     /**
+     * Evaluate [supplier] and return a non-empty [Maybe] if no error occurs.
+     */
+    fun <T> evaluate(supplier: () -> T?): Maybe<T> {
+      return try {
+        wrap(supplier())
+      } catch (e: Exception) {
+        nothing()
+      }
+    }
+
+    /**
      * Zip all inner values of [maybes] with [selector].
      */
     fun <T, T1> zip(maybes: Collection<MaybeConvertibleType<T>>,

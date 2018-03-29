@@ -68,10 +68,28 @@ abstract class Try<T> internal constructor(): TryType<T> {
     }
 
     /**
-     * Convenience method to call [wrap] with an error message.
+     * Convenience method to call [wrap] with [error] message.
      */
     fun <T> wrap(value: T?, error: String = "Invalid value"): Try<T> {
       return wrap(value, Exception(error))
+    }
+
+    /**
+     * Evaluate [supplier] and return a success [Try] if no error occurs.
+     */
+    fun <T> evaluate(supplier: () -> T?, error: Exception): Try<T> {
+      return try {
+        wrap(supplier(), error)
+      } catch (e: Exception) {
+        failure(e)
+      }
+    }
+
+    /**
+     * Convenience method to call [evaluate] with [error] message.
+     */
+    fun <T> evaluate(supplier: () -> T?, error: String = "Invalid value"): Try<T> {
+      return evaluate(supplier, Exception(error))
     }
 
     /**
@@ -180,6 +198,7 @@ abstract class Try<T> internal constructor(): TryType<T> {
 private class Success<T>(override val value: T): Try<T>() {
   override val error: Exception? = null
 
+  @Throws(Exception::class)
   override fun getOrThrow(): T = value
 }
 
@@ -189,5 +208,6 @@ private class Success<T>(override val value: T): Try<T>() {
 private class Failure<T>(override val error: Exception): Try<T>() {
   override val value: T? = null
 
+  @Throws(Exception::class)
   override fun getOrThrow(): T = throw error
 }
