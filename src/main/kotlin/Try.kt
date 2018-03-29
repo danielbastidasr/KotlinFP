@@ -56,7 +56,9 @@ abstract class Try<T> internal constructor(): TryType<T> {
     /**
      * Return a [Failure].
      */
-    fun <T> failure(error: String): Try<T> = Failure(Exception(error))
+    fun <T> failure(error: String = "Invalid value"): Try<T> {
+      return Failure(Exception(error))
+    }
 
     /**
      * Wrap a nullable [T] [value], or return [Failure] with [error].
@@ -68,7 +70,7 @@ abstract class Try<T> internal constructor(): TryType<T> {
     /**
      * Convenience method to call [wrap] with an error message.
      */
-    fun <T> wrap(value: T?, error: String): Try<T> {
+    fun <T> wrap(value: T?, error: String = "Invalid value"): Try<T> {
       return wrap(value, Exception(error))
     }
   }

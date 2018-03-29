@@ -20,13 +20,18 @@ version '1.0-SNAPSHOT'
 apply plugin: "kotlin"
 
 jacocoTestReport {
+    group = "Reporting"
+    description = "Generate Jacoco coverage reports"
+
     reports {
         xml.enabled = true
         html.enabled = true
     }
 
-    def mainSrc = "${project.projectDir}/src/kotlin"
-    sourceDirectories = files(mainSrc)
+    sourceDirectories = files(
+            sourceSets.main.java.srcDirs,
+            sourceSets.main.kotlin.srcDirs
+    )
 }
 
 repositories {

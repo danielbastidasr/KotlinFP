@@ -76,6 +76,27 @@ abstract class Maybe<T> internal constructor(): MaybeType<T> {
     fun <T> wrap(value: T?): Maybe<T> {
       return if (value != null) some(value) else nothing()
     }
+
+    /**
+     * Zip all inner values of [maybes] with [selector].
+     */
+    fun <T, T1> zip(maybes: Collection<MaybeConvertibleType<T>>,
+                    selector: (List<T>) -> T1): Maybe<T1> {
+      return try {
+        val values = maybes.map { it.asMaybe().getOrThrow() }
+        wrap(selector(values))
+      } catch (e: Exception) {
+        nothing()
+      }
+    }
+
+    /**
+     * Zip all inner values of [maybes] with [selector].
+     */
+    fun <T, T1> zip(selector: (List<T>) -> T1,
+                    vararg maybes: MaybeConvertibleType<T>): Maybe<T1> {
+      return zip(maybes.asList(), selector)
+    }
   }
 
   override fun asMaybe(): Maybe<T> = this
@@ -89,7 +110,7 @@ abstract class Maybe<T> internal constructor(): MaybeType<T> {
     return try {
       val value = getOrThrow()
       val value1 = selector(value)
-      some(value1)
+      wrap(value1)
     } catch (e: Exception) {
       nothing()
     }
@@ -112,6 +133,20 @@ abstract class Maybe<T> internal constructor(): MaybeType<T> {
    */
   fun <R> flatMapNullable(selector: (T) -> R?): Maybe<R> {
     return flatMap { wrap(selector(it)) }
+  }
+
+  /**
+   * Zip with another [MaybeConvertibleType] and combine the inner values with
+   * [selector] to produce another [Maybe].
+   */
+  fun <T1, T2> zipWith(other: MaybeConvertibleType<T1>, selector: (T, T1) -> T2): Maybe<T2> {
+    return try {
+      val value = getOrThrow()
+      val value1 = other.asMaybe().getOrThrow()
+      wrap(selector(value, value1))
+    } catch (e: Exception) {
+      nothing()
+    }
   }
 }
 
