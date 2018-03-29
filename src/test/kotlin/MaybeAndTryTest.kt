@@ -136,12 +136,14 @@ class MaybeAndTryTest {
     /// When
     val m1m = m1.map(Int::toString)
     val m2m = m2.map(Int::toString)
+    val m3m = m1.map(Int::toString).map { it + it }
     val t1m = t1.map(Int::toString)
     val t2m = t2.map(Int::toString)
 
     /// Then
     Assert.assertEquals(m1m.value, "1")
     Assert.assertTrue(m2m.isNothing)
+    Assert.assertEquals(m3m.value, "11")
     Assert.assertEquals(t1m.value, "1")
     Assert.assertTrue(t2m.isFailure)
   }
@@ -180,8 +182,14 @@ class MaybeAndTryTest {
     val mz2 = Maybe.zip({ it.sum() }, m1, t1)
     val mz3 = m2.zipWith(t2) { a, b -> a + b }
     val mz4 = m1.zipWith(t2) { a, b -> a + b }
-    val mz5 = m1.zipWith(t1) { a, b -> throw Exception("") }
+    val mz5 = m1.zipWith(t1) { _, _ -> throw Exception("") }
     val mz6 = m1.zipWith(t1) { a, b -> a + b }
+    val mz7 = m1.zipWithNullable(1) { a, b -> a + b }
+    val tz1 = Try.zip(listOf(t1, t2, m1, m2)) { it.sum() }
+    val tz2 = Try.zip({ it.sum() }, t1, m1)
+    val tz3 = t1.zipWith(m2) { a, b -> a + b }
+    val tz4 = t1.zipWith(m1) { _, _ -> throw Exception("") }
+    val tz5 = t1.zipWithNullable(null) { _, _ -> 1 }
 
     /// Then
     Assert.assertTrue(mz1.isNothing)
@@ -190,5 +198,38 @@ class MaybeAndTryTest {
     Assert.assertTrue(mz4.isNothing)
     Assert.assertTrue(mz5.isNothing)
     Assert.assertEquals(mz6.value, 2)
+    Assert.assertEquals(mz7.value, 2)
+    Assert.assertTrue(tz1.isFailure)
+    Assert.assertEquals(tz2.value, 2)
+    Assert.assertTrue(tz3.isFailure)
+    Assert.assertTrue(tz4.isFailure)
+    Assert.assertTrue(tz5.isFailure)
+  }
+
+  @Test
+  fun test_filter_shouldWork() {
+    /// Setup
+    val m1 = Maybe.some(1)
+    val m2 = Maybe.nothing<Int>()
+    val t1 = Try.success(1)
+    val t2 = Try.failure<Int>("Error")
+
+    /// When
+    val m1f = m1.filter { it % 2 == 0 }
+    val m2f = m2.filter { it % 2 != 0 }
+    val m3f = m1.filter { it % 2 != 0 }
+    val m4f = m1.filter { throw Exception("") }
+    val t1f = t1.filter({ it % 2 == 0 }, "Error 2")
+    val t2f = t2.filter({ it % 2 == 0 }, "Error 2")
+    val t3f = t1.filter({ throw Exception("Error 3") }, "Error 2")
+
+    /// Then
+    Assert.assertTrue(m1f.isNothing)
+    Assert.assertTrue(m2f.isNothing)
+    Assert.assertEquals(m3f.value, 1)
+    Assert.assertTrue(m4f.isNothing)
+    Assert.assertEquals(t1f.error?.message, "Error 2")
+    Assert.assertEquals(t2f.error?.message, "Error")
+    Assert.assertEquals(t3f.error?.message, "Error 3")
   }
 }

@@ -73,6 +73,27 @@ abstract class Try<T> internal constructor(): TryType<T> {
     fun <T> wrap(value: T?, error: String = "Invalid value"): Try<T> {
       return wrap(value, Exception(error))
     }
+
+    /**
+     * Zip all inner values of [tries] with [selector].
+     */
+    fun <T, T1> zip(tries: Collection<TryConvertibleType<T>>,
+                    selector: (List<T>) -> T1): Try<T1> {
+      return try {
+        val values = tries.map { it.asTry().getOrThrow() }
+        wrap(selector(values))
+      } catch (e: Exception) {
+        failure(e)
+      }
+    }
+
+    /**
+     * Zip all inner values of [tries] with [selector].
+     */
+    fun <T, T1> zip(selector: (List<T>) -> T1,
+                    vararg tries: TryConvertibleType<T>): Try<T1> {
+      return zip(tries.asList(), selector)
+    }
   }
 
   override fun asMaybe(): Maybe<T> {
@@ -110,6 +131,46 @@ abstract class Try<T> internal constructor(): TryType<T> {
    */
   fun <R> flatMapNullable(selector: (T) -> R?): Try<R> {
     return flatMap { Maybe.wrap(selector(it)) }
+  }
+
+  /**
+   * Zip with another [TryConvertibleType] using [selector].
+   */
+  fun <T1, T2> zipWith(other: TryConvertibleType<T1>, selector: (T, T1) -> T2): Try<T2> {
+    return try {
+      val value = getOrThrow()
+      val value1 = other.asTry().getOrThrow()
+      Try.wrap(selector(value, value1))
+    } catch (e: Exception) {
+      Try.failure<T2>(e)
+    }
+  }
+
+  /**
+   * Zip with another nullable [T1] using [selector].
+   */
+  fun <T1, T2> zipWithNullable(other: T1?, selector: (T, T1) -> T2): Try<T2> {
+    return zipWith(Maybe.wrap(other), selector)
+  }
+
+  /**
+   * Filter [value] with [selector] and return [failure] if the check fails.
+   * [error] will be used if the selector returns false.
+   */
+  fun filter(selector: (T) -> Boolean, error: Exception): Try<T> {
+    return try {
+      val value = getOrThrow()
+      if (selector(value)) this else failure(error)
+    } catch (e: Exception) {
+      failure(e)
+    }
+  }
+
+  /**
+   * Convenient method to filter [value] with an [error] message.
+   */
+  fun filter(selector: (T) -> Boolean, error: String = "Invalid value"): Try<T> {
+    return filter(selector, Exception(error))
   }
 }
 

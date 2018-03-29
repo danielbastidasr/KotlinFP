@@ -148,6 +148,25 @@ abstract class Maybe<T> internal constructor(): MaybeType<T> {
       nothing()
     }
   }
+
+  /**
+   * Zip with another nullable [T1] using [selector].
+   */
+  fun <T1, T2> zipWithNullable(other: T1?, selector: (T, T1) -> T2): Maybe<T2> {
+    return zipWith(Maybe.wrap(other), selector)
+  }
+
+  /**
+   * Filter [value] with [selector] and return [nothing] if the check fails.
+   */
+  fun filter(selector: (T) -> Boolean): Maybe<T> {
+    return try {
+      val value = getOrThrow()
+      if (selector(value)) this else nothing()
+    } catch (e: Exception) {
+      nothing()
+    }
+  }
 }
 
 /**
