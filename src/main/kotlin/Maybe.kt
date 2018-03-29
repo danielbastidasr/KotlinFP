@@ -1,5 +1,3 @@
-package maybe
-
 /**
  * Created by haipham on 29/3/18.
  */
@@ -73,7 +71,7 @@ abstract class Maybe<T> internal constructor(): MaybeType<T> {
      * Wrap a nullable [T] value.
      */
     fun <T> wrap(value: T?): Maybe<T> {
-      return if (value != null) Maybe.some(value) else Maybe.nothing()
+      return if (value != null) some(value) else nothing()
     }
   }
 
@@ -88,9 +86,9 @@ abstract class Maybe<T> internal constructor(): MaybeType<T> {
     try {
       val value = getOrThrow()
       val value1 = selector(value)
-      return Maybe.some(value1)
+      return some(value1)
     } catch (e: Exception) {
-      return Maybe.nothing()
+      return nothing()
     }
   }
 
@@ -102,7 +100,7 @@ abstract class Maybe<T> internal constructor(): MaybeType<T> {
       val value = getOrThrow()
       return selector(value).asOptional()
     } catch (e: Exception) {
-      return Maybe.nothing()
+      return nothing()
     }
   }
 
@@ -110,7 +108,7 @@ abstract class Maybe<T> internal constructor(): MaybeType<T> {
    * Flat-map [T] to a nullable [R].
    */
   fun <R> flatMapNullable(selector: (T) -> R?): Maybe<R> {
-    return flatMap { Maybe.wrap(selector(it)) }
+    return flatMap { wrap(selector(it)) }
   }
 }
 
