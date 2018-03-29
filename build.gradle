@@ -10,42 +10,14 @@ buildscript {
 }
 
 plugins {
-    id 'jacoco'
-    id 'com.github.kt3k.coveralls' version '2.6.3'
+    id 'com.github.kt3k.coveralls' version '2.8.2'
 }
 
 group 'org.swiften'
 version '1.0-SNAPSHOT'
 
 apply plugin: "kotlin"
-
-jacoco {
-    toolVersion = "0.8.1"
-    reportsDir = file("$buildDir/jacoco/")
-}
-
-jacocoTestReport {
-    group = "Reporting"
-    description = "Generate Jacoco coverage reports"
-
-    reports {
-        xml.enabled = true
-        html.enabled = true
-    }
-
-    classDirectories = files("${buildDir}/classes")
-
-    sourceDirectories = files(
-            sourceSets.main.java.srcDirs,
-            sourceSets.main.kotlin.srcDirs
-    )
-
-    executionData = files("$buildDir/jacoco/jacocoTest.exec")
-}
-
-coveralls {
-    jacocoReportPath "$buildDir/jacoco/test/jacocoTestReport.xml"
-}
+apply plugin: 'jacoco'
 
 repositories {
     mavenCentral()
@@ -65,11 +37,18 @@ compileTestKotlin {
     kotlinOptions.jvmTarget = "1.6"
 }
 
-test {
-    useTestNG()
+jacocoTestReport {
+    description = "Generates Code coverage report."
 
-    jacoco {
-        append = false
-        destinationFile = file("$buildDir/jacoco/jacocoTest.exec")
+    reports {
+        xml.enabled = true
+        html.enabled = true
+        csv.enabled = false
     }
 }
+
+test {
+    useTestNG()
+}
+
+tasks.test.finalizedBy jacocoTestReport
