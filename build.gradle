@@ -24,6 +24,9 @@ jacocoTestReport {
         xml.enabled = true
         html.enabled = true
     }
+
+    def mainSrc = "${project.projectDir}/src/kotlin"
+    sourceDirectories = files(mainSrc)
 }
 
 repositories {

@@ -9,15 +9,26 @@ interface MaybeConvertibleType<T> {
   /**
    * Convert to [Maybe].
    */
-  fun asOptional(): Maybe<T>
+  fun asMaybe(): Maybe<T>
 }
 
 /**
  * This represents a type of [Maybe].
  */
-interface MaybeType<T>: MaybeConvertibleType<T> {
+interface MaybeType<T>: MaybeConvertibleType<T>, TryConvertibleType<T> {
   val value: T?
+
+  /**
+   * Get the current [value] or throw an [Exception].
+   */
+  @Throws(Exception::class)
+  fun getOrThrow(): T {
+    return value ?: throw Exception(valueError)
+  }
 }
+
+private val <T> MaybeType<T>.valueError: String
+  get() = "Value not available for ${this.javaClass}"
 
 /**
  * Check if [MaybeType.value] is available.
@@ -32,14 +43,6 @@ val <T> MaybeType<T>.isNothing: Boolean
   get() = value == null
 
 /**
- * Get the current [value] or throw an [Exception].
- */
-@Throws(Exception::class)
-fun <T> Maybe<T>.getOrThrow(): T {
-  return value ?: throw Exception("Value not available for ${this.javaClass}")
-}
-
-/**
  * Get [MaybeType.value] or return [fallback] if it's not available.
  */
 fun <T> MaybeType<T>.getOrElse(fallback: T): T = value ?: fallback
@@ -49,7 +52,7 @@ fun <T> MaybeType<T>.getOrElse(fallback: T): T = value ?: fallback
  * is true.
  */
 fun <T> MaybeType<T>.someOrElse(fallback: MaybeConvertibleType<T>): Maybe<T> {
-  return if (isSome) this.asOptional() else fallback.asOptional()
+  return if (isSome) this.asMaybe() else fallback.asMaybe()
 }
 
 /**
@@ -75,20 +78,20 @@ abstract class Maybe<T> internal constructor(): MaybeType<T> {
     }
   }
 
-  override fun asOptional(): Maybe<T> {
-    return this
-  }
+  override fun asMaybe(): Maybe<T> = this
+
+  override fun asTry(): Try<T> = Try.wrap(value, valueError)
 
   /**
    * Map [T] to [R] and return [Maybe] with [R] generics.
    */
   fun <R> map(selector: (T) -> R): Maybe<R> {
-    try {
+    return try {
       val value = getOrThrow()
       val value1 = selector(value)
-      return some(value1)
+      some(value1)
     } catch (e: Exception) {
-      return nothing()
+      nothing()
     }
   }
 
@@ -96,11 +99,11 @@ abstract class Maybe<T> internal constructor(): MaybeType<T> {
    * Flat-map [T] to another [MaybeConvertibleType] with [R] generics.
    */
   fun <R> flatMap(selector: (T) -> MaybeConvertibleType<R>): Maybe<R> {
-    try {
+    return try {
       val value = getOrThrow()
-      return selector(value).asOptional()
+      selector(value).asMaybe()
     } catch (e: Exception) {
-      return nothing()
+      nothing()
     }
   }
 
@@ -112,9 +115,14 @@ abstract class Maybe<T> internal constructor(): MaybeType<T> {
   }
 }
 
+/**
+ * This represents a non-empty [Maybe].
+ */
 private class Some<T>(override val value: T): Maybe<T>()
 
-private class Nothing<T>(): Maybe<T>() {
-  override val value: T?
-    get() = null
+/**
+ * This represents an empty [Maybe].
+ */
+private class Nothing<T>: Maybe<T>() {
+  override val value: T? = null
 }
