@@ -19,6 +19,49 @@ interface MaybeType<T>: MaybeConvertibleType<T>, TryConvertibleType<T> {
   val value: T?
 
   /**
+   * Check if [value] is available.
+   */
+  val isSome: Boolean get() = value != null
+
+  /**
+   * Check if [value] is null.
+   */
+  val isNothing: Boolean get() = value == null
+
+  /**
+   * Get [value] or return [fallback] if it's not available.
+   */
+  fun getOrElse(fallback: T): T = value ?: fallback
+
+  /**
+   * Get [value] or invoke a [selector] to get a fallback value.
+   */
+  @Throws(Exception::class)
+  fun getOrElse(selector: () -> T): T {
+    val value = this.value
+    return if (value != null) value else selector()
+  }
+
+  /**
+   * Return the current [MaybeType] or [fallback] if [isNothing] is true.
+   */
+  fun someOrElse(fallback: MaybeConvertibleType<T>): Maybe<T> {
+    return if (isSome) this.asMaybe() else fallback.asMaybe()
+  }
+
+  /**
+   * Return the current [MaybeType] or invoke [selector] to get a fallback
+   * [MaybeConvertibleType].
+   */
+  fun someOrElse(selector: () -> MaybeConvertibleType<T>): Maybe<T> {
+    return try {
+      if (isSome) this.asMaybe() else selector().asMaybe()
+    } catch (e: Exception) {
+      Maybe.nothing<T>()
+    }
+  }
+
+  /**
    * Get the current [value] or throw an [Exception].
    */
   @Throws(Exception::class)
@@ -27,33 +70,8 @@ interface MaybeType<T>: MaybeConvertibleType<T>, TryConvertibleType<T> {
   }
 }
 
-private val <T> MaybeType<T>.valueError: String
+internal val <T> MaybeType<T>.valueError: String
   get() = "Value not available for ${this.javaClass}"
-
-/**
- * Check if [MaybeType.value] is available.
- */
-val <T> MaybeType<T>.isSome: Boolean
-  get() = value != null
-
-/**
- * Check if [MaybeType.value] is null.
- */
-val <T> MaybeType<T>.isNothing: Boolean
-  get() = value == null
-
-/**
- * Get [MaybeType.value] or return [fallback] if it's not available.
- */
-fun <T> MaybeType<T>.getOrElse(fallback: T): T = value ?: fallback
-
-/**
- * Return the current [MaybeType] or [fallback] if [MaybeType.isNothing]
- * is true.
- */
-fun <T> MaybeType<T>.someOrElse(fallback: MaybeConvertibleType<T>): Maybe<T> {
-  return if (isSome) this.asMaybe() else fallback.asMaybe()
-}
 
 /**
  * Abstract [Maybe] class.

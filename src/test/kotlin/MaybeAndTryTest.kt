@@ -112,10 +112,16 @@ class MaybeAndTryTest {
     /// Setup
     val m1 = Maybe.some(1)
     val m2 = Maybe.nothing<Int>()
+    val t1 = Try.success(1)
+    val t2 = Try.failure<Int>()
 
     /// When & Then
     Assert.assertEquals(m1.getOrElse(2), 1)
     Assert.assertEquals(m2.getOrElse(2), 2)
+    Assert.assertEquals(m1.getOrElse { throw Exception("") }, 1)
+    Assert.assertEquals(m2.getOrElse { 1 }, 1)
+    Assert.assertEquals(t1.getOrElse { 2 }, 1)
+    Assert.assertEquals(t2.getOrElse { 2 }, 2)
   }
 
   @Test
@@ -131,10 +137,16 @@ class MaybeAndTryTest {
     Assert.assertEquals(m1.someOrElse(t2).value, 1)
     Assert.assertEquals(m2.someOrElse(m1).value, 1)
     Assert.assertEquals(m2.someOrElse(t1).value, 1)
+    Assert.assertEquals(m1.someOrElse { m2 }.value, 1)
+    Assert.assertEquals(m1.someOrElse { throw Exception("") }.value, 1)
+    Assert.assertTrue(m2.someOrElse { throw Exception("") }.isNothing)
     Assert.assertEquals(t1.someOrElse(m2).value, 1)
     Assert.assertEquals(t2.someOrElse(m1).value, 1)
     Assert.assertEquals(t1.successOrElse(t2).value, 1)
     Assert.assertEquals(t2.successOrElse(t1).value, 1)
+    Assert.assertEquals(t1.successOrElse { throw Exception("") }.value, 1)
+    Assert.assertEquals(t2.successOrElse { t1 }.value, 1)
+    Assert.assertEquals(t2.successOrElse { throw Exception("Error") }.error?.message, "Error")
   }
 
   @Test

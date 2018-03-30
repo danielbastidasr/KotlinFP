@@ -17,25 +17,35 @@ interface TryConvertibleType<T> {
  */
 interface TryType<T>: MaybeType<T> {
   val error: Exception?
-}
 
-/**
- * Check if [TryType.value] is available.
- */
-val <T> TryType<T>.isSuccess: Boolean
-  get() = isSome
+  /**
+   * Check if [value] is available.
+   */
+  val isSuccess: Boolean get() = isSome
 
-/**
- * Check if [TryType.error] is available.
- */
-val <T> TryType<T>.isFailure: Boolean
-  get() = isNothing
+  /**
+   * Check if [error] is available.
+   */
+  val isFailure: Boolean get() = isNothing
 
-/**
- * Return the current [TryType] or [fallback] if [TryType.isSuccess] is true.
- */
-fun <T> TryType<T>.successOrElse(fallback: TryConvertibleType<T>): Try<T> {
-  return if (isSuccess) this.asTry() else fallback.asTry()
+  /**
+   * Return the current [TryType] or [fallback] if [isSuccess] is true.
+   */
+  fun successOrElse(fallback: TryConvertibleType<T>): Try<T> {
+    return if (isSuccess) this.asTry() else fallback.asTry()
+  }
+
+  /**
+   * Return the current [TryType] or invoke [selector] to get a fallback
+   * [TryConvertibleType].
+   */
+  fun successOrElse(selector: () -> TryConvertibleType<T>): Try<T> {
+    return try {
+      if (isSuccess) this.asTry() else selector().asTry()
+    } catch (e: Exception) {
+      Try.failure(e)
+    }
+  }
 }
 
 /**
