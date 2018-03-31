@@ -9,8 +9,8 @@ public final class AccessTest {
   @SuppressWarnings("ConstantConditions")
   public void test_accessKotlinCode_shouldWork() {
     /// Setup
-    Option<Integer> o1 = Option.Companion.<Integer>nothing().catchNothing(0);
-    Try<Integer> t1 = Try.Companion.<Integer>failure("").catchFailure(0);
+    Option<Integer> o1 = Option.<Integer>nothing().catchNothing(0);
+    Try<Integer> t1 = Try.<Integer>failure("").catchFailure(0);
 
     /// When & Then
     Assert.assertEquals(o1.getValue().intValue(), 0);

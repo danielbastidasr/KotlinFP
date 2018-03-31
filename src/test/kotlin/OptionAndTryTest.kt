@@ -8,6 +8,36 @@ import org.testng.annotations.Test
 
 class OptionAndTryTest {
   @Test
+  fun test_whenWithSpecificCases_shouldWork() {
+    /// Setup
+    val o1 = Option.some(1)
+    val o2 = Option.nothing<Int>()
+    val t1 = Try.success(1)
+    val t2 = Try.failure<Int>("Error")
+
+    /// When & Then
+    when(o1) {
+      is Option.Some<Int> -> Assert.assertEquals(o1.value, 1)
+      is Option.Nothing<Int> -> Assert.fail("Should not reach here")
+    }
+
+    when(o2) {
+      is Option.Some<Int> -> Assert.fail("Should not reach here")
+      is Option.Nothing<Int> -> Assert.assertTrue(true)
+    }
+
+    when(t1) {
+      is Try.Success<Int> -> Assert.assertEquals(t1.value, 1)
+      is Try.Failure<Int> -> Assert.fail("Should not reach here")
+    }
+
+    when(t2) {
+      is Try.Success<Int> -> Assert.fail("Should not reach here")
+      is Try.Failure<Int> -> Assert.assertEquals(t2.error.message, "Error")
+    }
+  }
+
+  @Test
   fun test_asOptionAndTry_shouldWork() {
     /// Setup
     val o1: OptionType<Int> = Option.some(1)

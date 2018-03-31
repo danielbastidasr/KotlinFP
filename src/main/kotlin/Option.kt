@@ -76,21 +76,36 @@ internal val <T> OptionType<T>.valueError: String
 /**
  * Abstract [Option] class.
  */
-abstract class Option<T> internal constructor(): OptionType<T> {
+sealed class Option<T>: OptionType<T> {
+  /**
+   * This represents a non-empty [Option].
+   */
+  class Some<T>(override val value: T): Option<T>()
+
+  /**
+   * This represents an empty [Option].
+   */
+  class Nothing<T>: Option<T>() {
+    override val value: T? = null
+  }
+
   companion object {
     /**
      * Return a [Some].
      */
+    @JvmStatic
     fun <T> some(value: T): Option<T> = Some(value)
 
     /**
      * Return a [Nothing].
      */
+    @JvmStatic
     fun <T> nothing(): Option<T> = Nothing()
 
     /**
      * Wrap a nullable [T] value.
      */
+    @JvmStatic
     fun <T> wrap(value: T?): Option<T> {
       return if (value != null) some(value) else nothing()
     }
@@ -98,6 +113,7 @@ abstract class Option<T> internal constructor(): OptionType<T> {
     /**
      * Evaluate [supplier] and return a non-empty [Option] if no error occurs.
      */
+    @JvmStatic
     fun <T> evaluate(supplier: () -> T?): Option<T> {
       return try {
         wrap(supplier())
@@ -109,6 +125,7 @@ abstract class Option<T> internal constructor(): OptionType<T> {
     /**
      * Zip all inner values of [options] with [selector].
      */
+    @JvmStatic
     fun <T, T1> zip(options: Collection<OptionConvertibleType<T>>,
                     selector: (List<T>) -> T1): Option<T1> {
       return try {
@@ -122,6 +139,7 @@ abstract class Option<T> internal constructor(): OptionType<T> {
     /**
      * Zip all inner values of [options] with [selector].
      */
+    @JvmStatic
     fun <T, T1> zip(selector: (List<T>) -> T1,
                     vararg options: OptionConvertibleType<T>): Option<T1> {
       return zip(options.asList(), selector)
@@ -214,16 +232,4 @@ abstract class Option<T> internal constructor(): OptionType<T> {
   fun catchNothing(fallback: T): Option<T> {
     return catchNothing { fallback }
   }
-}
-
-/**
- * This represents a non-empty [Option].
- */
-private class Some<T>(override val value: T): Option<T>()
-
-/**
- * This represents an empty [Option].
- */
-private class Nothing<T>: Option<T>() {
-  override val value: T? = null
 }

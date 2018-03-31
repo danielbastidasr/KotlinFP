@@ -51,21 +51,45 @@ interface TryType<T>: OptionType<T> {
 /**
  * Abstract [Try] class.
  */
-abstract class Try<T> internal constructor(): TryType<T> {
+sealed class Try<T>: TryType<T> {
+  /**
+   * This represents a non-empty [Try].
+   */
+  class Success<T>(override val value: T): Try<T>() {
+    override val error: Exception? = null
+
+    @Throws(Exception::class)
+    override fun getOrThrow(): T = value
+  }
+
+  /**
+   * This represents an error [Try].
+   */
+  class Failure<T>(override val error: Exception): Try<T>() {
+    override val value: T? = null
+
+    @Throws(Exception::class)
+    override fun getOrThrow(): T = throw error
+  }
+
   companion object {
     /**
      * Return a [Success].
      */
+    @JvmStatic
     fun <T> success(value: T): Try<T> = Success(value)
 
     /**
      * Return a [Failure].
      */
+    @JvmStatic
     fun <T> failure(error: Exception): Try<T> = Failure(error)
 
     /**
      * Return a [Failure].
      */
+    @JvmStatic
+    @JvmOverloads
     fun <T> failure(error: String = "Invalid value"): Try<T> {
       return Failure(Exception(error))
     }
@@ -73,6 +97,7 @@ abstract class Try<T> internal constructor(): TryType<T> {
     /**
      * Wrap a nullable [T] [value], or return [Failure] with [error].
      */
+    @JvmStatic
     fun <T> wrap(value: T?, error: Exception): Try<T> {
       return if (value != null) success(value) else failure(error)
     }
@@ -80,6 +105,8 @@ abstract class Try<T> internal constructor(): TryType<T> {
     /**
      * Convenience method to call [wrap] with [error] message.
      */
+    @JvmStatic
+    @JvmOverloads
     fun <T> wrap(value: T?, error: String = "Invalid value"): Try<T> {
       return wrap(value, Exception(error))
     }
@@ -87,6 +114,7 @@ abstract class Try<T> internal constructor(): TryType<T> {
     /**
      * Evaluate [supplier] and return a success [Try] if no error occurs.
      */
+    @JvmStatic
     fun <T> evaluate(supplier: () -> T?, error: Exception): Try<T> {
       return try {
         wrap(supplier(), error)
@@ -98,6 +126,8 @@ abstract class Try<T> internal constructor(): TryType<T> {
     /**
      * Convenience method to call [evaluate] with [error] message.
      */
+    @JvmStatic
+    @JvmOverloads
     fun <T> evaluate(supplier: () -> T?, error: String = "Invalid value"): Try<T> {
       return evaluate(supplier, Exception(error))
     }
@@ -105,6 +135,7 @@ abstract class Try<T> internal constructor(): TryType<T> {
     /**
      * Zip all inner values of [tries] with [selector].
      */
+    @JvmStatic
     fun <T, T1> zip(tries: Collection<TryConvertibleType<T>>,
                     selector: (List<T>) -> T1): Try<T1> {
       return try {
@@ -118,6 +149,7 @@ abstract class Try<T> internal constructor(): TryType<T> {
     /**
      * Zip all inner values of [tries] with [selector].
      */
+    @JvmStatic
     fun <T, T1> zip(selector: (List<T>) -> T1,
                     vararg tries: TryConvertibleType<T>): Try<T1> {
       return zip(tries.asList(), selector)
@@ -218,24 +250,4 @@ abstract class Try<T> internal constructor(): TryType<T> {
   fun catchFailure(fallback: T): Try<T> {
     return catchFailure { fallback }
   }
-}
-
-/**
- * This represents a non-empty [Try].
- */
-private class Success<T>(override val value: T): Try<T>() {
-  override val error: Exception? = null
-
-  @Throws(Exception::class)
-  override fun getOrThrow(): T = value
-}
-
-/**
- * This represents an error [Try].
- */
-private class Failure<T>(override val error: Exception): Try<T>() {
-  override val value: T? = null
-
-  @Throws(Exception::class)
-  override fun getOrThrow(): T = throw error
 }
