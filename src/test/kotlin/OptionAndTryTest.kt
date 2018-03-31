@@ -6,36 +6,36 @@ import org.testng.annotations.Test
  * Created by haipham on 29/3/18.
  */
 
-class MaybeAndTryTest {
+class OptionAndTryTest {
   @Test
-  fun test_asMaybeAndTry_shouldWork() {
+  fun test_asOptionAndTry_shouldWork() {
     /// Setup
-    val m1: MaybeType<Int> = Maybe.some(1)
-    val m2: MaybeType<Int> = Maybe.nothing()
-    val t1: MaybeType<Int> = Try.success(1)
-    val t2: MaybeType<Int> = Try.failure()
+    val o1: OptionType<Int> = Option.some(1)
+    val o2: OptionType<Int> = Option.nothing()
+    val t1: OptionType<Int> = Try.success(1)
+    val t2: OptionType<Int> = Try.failure()
 
     /// When & Then
-    Assert.assertEquals(m1, m1.asMaybe())
-    Assert.assertEquals(m2, m2.asMaybe())
+    Assert.assertEquals(o1, o1.asOption())
+    Assert.assertEquals(o2, o2.asOption())
     Assert.assertEquals(t1, t1.asTry())
     Assert.assertEquals(t2, t2.asTry())
-    Assert.assertEquals(m1.asTry().value, 1)
-    Assert.assertTrue(m2.asTry().isFailure)
-    Assert.assertEquals(t1.asMaybe().value, 1)
-    Assert.assertTrue(t2.asMaybe().isNothing)
+    Assert.assertEquals(o1.asTry().value, 1)
+    Assert.assertTrue(o2.asTry().isFailure)
+    Assert.assertEquals(t1.asOption().value, 1)
+    Assert.assertTrue(t2.asOption().isNothing)
   }
 
   @Test
   fun test_isSomeAndIsNothing_shouldWork() {
     /// Setup
-    val m1 = Maybe.some(1)
-    val m2 = Maybe.nothing<Int>()
-    val m3 = Maybe.wrap(1)
-    val m4 = Maybe.wrap<Int>(null)
-    val m5 = Maybe.evaluate { 1 }
-    val m6 = Maybe.evaluate { throw Exception("") }
-    val m7 = Maybe.evaluate { null }
+    val o1 = Option.some(1)
+    val o2 = Option.nothing<Int>()
+    val o3 = Option.wrap(1)
+    val o4 = Option.wrap<Int>(null)
+    val m5 = Option.evaluate { 1 }
+    val m6 = Option.evaluate { throw Exception("") }
+    val m7 = Option.evaluate { null }
     val t1 = Try.success(1)
     val t2 = Try.failure<Int>("")
     val t3 = Try.wrap(1, "")
@@ -45,10 +45,10 @@ class MaybeAndTryTest {
     val t7 = Try.evaluate({ null }, "Error")
 
     /// When & Then
-    Assert.assertEquals(m1.value, 1)
-    Assert.assertNull(m2.value)
-    Assert.assertEquals(m3.value, 1)
-    Assert.assertNull(m4.value)
+    Assert.assertEquals(o1.value, 1)
+    Assert.assertNull(o2.value)
+    Assert.assertEquals(o3.value, 1)
+    Assert.assertNull(o4.value)
     Assert.assertEquals(m5.value, 1)
     Assert.assertTrue(m6.isNothing)
     Assert.assertTrue(m7.isNothing)
@@ -60,14 +60,14 @@ class MaybeAndTryTest {
     Assert.assertNull(t3.error)
     Assert.assertNull(t4.value)
     Assert.assertNotNull(t4.error)
-    Assert.assertTrue(m1.isSome)
-    Assert.assertFalse(m1.isNothing)
-    Assert.assertTrue(m2.isNothing)
-    Assert.assertFalse(m2.isSome)
-    Assert.assertTrue(m3.isSome)
-    Assert.assertFalse(m3.isNothing)
-    Assert.assertTrue(m4.isNothing)
-    Assert.assertFalse(m4.isSome)
+    Assert.assertTrue(o1.isSome)
+    Assert.assertFalse(o1.isNothing)
+    Assert.assertTrue(o2.isNothing)
+    Assert.assertFalse(o2.isSome)
+    Assert.assertTrue(o3.isSome)
+    Assert.assertFalse(o3.isNothing)
+    Assert.assertTrue(o4.isNothing)
+    Assert.assertFalse(o4.isSome)
     Assert.assertTrue(t1.isSuccess)
     Assert.assertFalse(t1.isFailure)
     Assert.assertTrue(t2.isFailure)
@@ -84,16 +84,16 @@ class MaybeAndTryTest {
   @Test
   fun test_getOrThrow_shouldWork() {
     /// Setup
-    val m1 = Maybe.some(1)
-    val m2 = Maybe.nothing<Int>()
+    val o1 = Option.some(1)
+    val o2 = Option.nothing<Int>()
     val t1 = Try.success(1)
     val t2 = Try.failure<Int>("Error")
 
     /// When & Then
-    Assert.assertEquals(m1.getOrThrow(), 1)
+    Assert.assertEquals(o1.getOrThrow(), 1)
 
     try {
-      m2.getOrThrow()
+      o2.getOrThrow()
       Assert.fail("Should not have completed")
     } catch (e: Exception) {}
 
@@ -110,16 +110,16 @@ class MaybeAndTryTest {
   @Test
   fun test_getOrElse_shouldWork() {
     /// Setup
-    val m1 = Maybe.some(1)
-    val m2 = Maybe.nothing<Int>()
+    val o1 = Option.some(1)
+    val o2 = Option.nothing<Int>()
     val t1 = Try.success(1)
     val t2 = Try.failure<Int>()
 
     /// When & Then
-    Assert.assertEquals(m1.getOrElse(2), 1)
-    Assert.assertEquals(m2.getOrElse(2), 2)
-    Assert.assertEquals(m1.getOrElse { throw Exception("") }, 1)
-    Assert.assertEquals(m2.getOrElse { 1 }, 1)
+    Assert.assertEquals(o1.getOrElse(2), 1)
+    Assert.assertEquals(o2.getOrElse(2), 2)
+    Assert.assertEquals(o1.getOrElse { throw Exception("") }, 1)
+    Assert.assertEquals(o2.getOrElse { 1 }, 1)
     Assert.assertEquals(t1.getOrElse { 2 }, 1)
     Assert.assertEquals(t2.getOrElse { 2 }, 2)
   }
@@ -127,21 +127,21 @@ class MaybeAndTryTest {
   @Test
   fun test_someOrElseAndSuccessOrElse_shouldWork() {
     /// Setup
-    val m1 = Maybe.some(1)
-    val m2 = Maybe.nothing<Int>()
+    val o1 = Option.some(1)
+    val o2 = Option.nothing<Int>()
     val t1 = Try.success(1)
     val t2 = Try.failure<Int>("Error")
 
     /// When & Then
-    Assert.assertEquals(m1.someOrElse(m2).value, 1)
-    Assert.assertEquals(m1.someOrElse(t2).value, 1)
-    Assert.assertEquals(m2.someOrElse(m1).value, 1)
-    Assert.assertEquals(m2.someOrElse(t1).value, 1)
-    Assert.assertEquals(m1.someOrElse { m2 }.value, 1)
-    Assert.assertEquals(m1.someOrElse { throw Exception("") }.value, 1)
-    Assert.assertTrue(m2.someOrElse { throw Exception("") }.isNothing)
-    Assert.assertEquals(t1.someOrElse(m2).value, 1)
-    Assert.assertEquals(t2.someOrElse(m1).value, 1)
+    Assert.assertEquals(o1.someOrElse(o2).value, 1)
+    Assert.assertEquals(o1.someOrElse(t2).value, 1)
+    Assert.assertEquals(o2.someOrElse(o1).value, 1)
+    Assert.assertEquals(o2.someOrElse(t1).value, 1)
+    Assert.assertEquals(o1.someOrElse { o2 }.value, 1)
+    Assert.assertEquals(o1.someOrElse { throw Exception("") }.value, 1)
+    Assert.assertTrue(o2.someOrElse { throw Exception("") }.isNothing)
+    Assert.assertEquals(t1.someOrElse(o2).value, 1)
+    Assert.assertEquals(t2.someOrElse(o1).value, 1)
     Assert.assertEquals(t1.successOrElse(t2).value, 1)
     Assert.assertEquals(t2.successOrElse(t1).value, 1)
     Assert.assertEquals(t1.successOrElse { throw Exception("") }.value, 1)
@@ -152,22 +152,22 @@ class MaybeAndTryTest {
   @Test
   fun test_map_shouldWork() {
     /// Setup
-    val m1 = Maybe.some(1)
-    val m2 = Maybe.nothing<Int>()
+    val o1 = Option.some(1)
+    val o2 = Option.nothing<Int>()
     val t1 = Try.success(1)
     val t2 = Try.failure<Int>("Error")
 
     /// When
-    val m1m = m1.map(Int::toString)
-    val m2m = m2.map(Int::toString)
-    val m3m = m1.map(Int::toString).map { it + it }
+    val o1m = o1.map(Int::toString)
+    val o2m = o2.map(Int::toString)
+    val o3m = o1.map(Int::toString).map { it + it }
     val t1m = t1.map(Int::toString)
     val t2m = t2.map(Int::toString)
 
     /// Then
-    Assert.assertEquals(m1m.value, "1")
-    Assert.assertTrue(m2m.isNothing)
-    Assert.assertEquals(m3m.value, "11")
+    Assert.assertEquals(o1m.value, "1")
+    Assert.assertTrue(o2m.isNothing)
+    Assert.assertEquals(o3m.value, "11")
     Assert.assertEquals(t1m.value, "1")
     Assert.assertTrue(t2m.isFailure)
   }
@@ -175,20 +175,20 @@ class MaybeAndTryTest {
   @Test
   fun test_flatMap_shouldWork() {
     /// Setup
-    val m1 = Maybe.some(1)
-    val m2 = Maybe.nothing<Int>()
+    val o1 = Option.some(1)
+    val o2 = Option.nothing<Int>()
     val t1 = Try.success(1)
     val t2 = Try.failure<Int>("Error")
 
     /// When
-    val m1fm = m1.flatMapNullable<Int> { null }
-    val m2fm = m2.flatMap { Maybe.some(1) }
+    val o1fm = o1.flatMapNullable<Int> { null }
+    val o2fm = o2.flatMap { Option.some(1) }
     val t1fm = t1.flatMapNullable<Int> { null }
     val t2fm = t2.flatMap { Try.success(1) }
 
     /// Then
-    Assert.assertTrue(m1fm.isNothing)
-    Assert.assertTrue(m2fm.isNothing)
+    Assert.assertTrue(o1fm.isNothing)
+    Assert.assertTrue(o2fm.isNothing)
     Assert.assertTrue(t1fm.isFailure)
     Assert.assertTrue(t2fm.isFailure)
   }
@@ -196,23 +196,23 @@ class MaybeAndTryTest {
   @Test
   fun test_zipAndZipWith_shouldWork() {
     /// Setup
-    val m1 = Maybe.some(1)
-    val m2 = Maybe.nothing<Int>()
+    val o1 = Option.some(1)
+    val o2 = Option.nothing<Int>()
     val t1 = Try.success(1)
     val t2 = Try.failure<Int>()
 
     /// When
-    val mz1 = Maybe.zip(listOf(m1, m2, t1, t2)) { it.sum() }
-    val mz2 = Maybe.zip({ it.sum() }, m1, t1)
-    val mz3 = m2.zipWith(t2) { a, b -> a + b }
-    val mz4 = m1.zipWith(t2) { a, b -> a + b }
-    val mz5 = m1.zipWith(t1) { _, _ -> throw Exception("") }
-    val mz6 = m1.zipWith(t1) { a, b -> a + b }
-    val mz7 = m1.zipWithNullable(1) { a, b -> a + b }
-    val tz1 = Try.zip(listOf(t1, t2, m1, m2)) { it.sum() }
-    val tz2 = Try.zip({ it.sum() }, t1, m1)
-    val tz3 = t1.zipWith(m2) { a, b -> a + b }
-    val tz4 = t1.zipWith(m1) { _, _ -> throw Exception("") }
+    val mz1 = Option.zip(listOf(o1, o2, t1, t2)) { it.sum() }
+    val mz2 = Option.zip({ it.sum() }, o1, t1)
+    val mz3 = o2.zipWith(t2) { a, b -> a + b }
+    val mz4 = o1.zipWith(t2) { a, b -> a + b }
+    val mz5 = o1.zipWith(t1) { _, _ -> throw Exception("") }
+    val mz6 = o1.zipWith(t1) { a, b -> a + b }
+    val mz7 = o1.zipWithNullable(1) { a, b -> a + b }
+    val tz1 = Try.zip(listOf(t1, t2, o1, o2)) { it.sum() }
+    val tz2 = Try.zip({ it.sum() }, t1, o1)
+    val tz3 = t1.zipWith(o2) { a, b -> a + b }
+    val tz4 = t1.zipWith(o1) { _, _ -> throw Exception("") }
     val tz5 = t1.zipWithNullable(null) { _, _ -> 1 }
 
     /// Then
@@ -233,25 +233,25 @@ class MaybeAndTryTest {
   @Test
   fun test_filter_shouldWork() {
     /// Setup
-    val m1 = Maybe.some(1)
-    val m2 = Maybe.nothing<Int>()
+    val o1 = Option.some(1)
+    val o2 = Option.nothing<Int>()
     val t1 = Try.success(1)
     val t2 = Try.failure<Int>("Error")
 
     /// When
-    val m1f = m1.filter { it % 2 == 0 }
-    val m2f = m2.filter { it % 2 != 0 }
-    val m3f = m1.filter { it % 2 != 0 }
-    val m4f = m1.filter { throw Exception("") }
+    val o1f = o1.filter { it % 2 == 0 }
+    val o2f = o2.filter { it % 2 != 0 }
+    val o3f = o1.filter { it % 2 != 0 }
+    val o4f = o1.filter { throw Exception("") }
     val t1f = t1.filter({ it % 2 == 0 }, "Error 2")
     val t2f = t2.filter({ it % 2 == 0 }, "Error 2")
     val t3f = t1.filter({ throw Exception("Error 3") }, "Error 2")
 
     /// Then
-    Assert.assertTrue(m1f.isNothing)
-    Assert.assertTrue(m2f.isNothing)
-    Assert.assertEquals(m3f.value, 1)
-    Assert.assertTrue(m4f.isNothing)
+    Assert.assertTrue(o1f.isNothing)
+    Assert.assertTrue(o2f.isNothing)
+    Assert.assertEquals(o3f.value, 1)
+    Assert.assertTrue(o4f.isNothing)
     Assert.assertEquals(t1f.error?.message, "Error 2")
     Assert.assertEquals(t2f.error?.message, "Error")
     Assert.assertEquals(t3f.error?.message, "Error 3")

@@ -15,7 +15,7 @@ interface TryConvertibleType<T> {
 /**
  * This represents a type of [Try].
  */
-interface TryType<T>: MaybeType<T> {
+interface TryType<T>: OptionType<T> {
   val error: Exception?
 
   /**
@@ -124,8 +124,8 @@ abstract class Try<T> internal constructor(): TryType<T> {
     }
   }
 
-  override fun asMaybe(): Maybe<T> {
-    return Maybe.wrap(value)
+  override fun asOption(): Option<T> {
+    return Option.wrap(value)
   }
 
   override fun asTry(): Try<T> = this
@@ -158,7 +158,7 @@ abstract class Try<T> internal constructor(): TryType<T> {
    * Flat-map [T] to a nullable [R].
    */
   fun <R> flatMapNullable(selector: (T) -> R?): Try<R> {
-    return flatMap { Maybe.wrap(selector(it)) }
+    return flatMap { Option.wrap(selector(it)) }
   }
 
   /**
@@ -178,7 +178,7 @@ abstract class Try<T> internal constructor(): TryType<T> {
    * Zip with another nullable [T1] using [selector].
    */
   fun <T1, T2> zipWithNullable(other: T1?, selector: (T, T1) -> T2): Try<T2> {
-    return zipWith(Maybe.wrap(other), selector)
+    return zipWith(Option.wrap(other), selector)
   }
 
   /**
