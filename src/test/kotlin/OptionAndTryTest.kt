@@ -158,12 +158,12 @@ class OptionAndTryTest {
     val t2 = Try.failure<Int>("Error")
 
     /// When & Then
-    Assert.assertEquals(o1.catch { throw Exception("") }.value, 1)
-    Assert.assertEquals(o2.catch(1).value, 1)
-    Assert.assertTrue(o2.catch { throw Exception("") }.isNothing)
-    Assert.assertEquals(t1.catch { throw Exception("") }.value, 1)
-    Assert.assertEquals(t2.catch(1).value, 1)
-    Assert.assertTrue(t2.catch { throw Exception("") }.isFailure)
+    Assert.assertEquals(o1.catchNothing { throw Exception("") }.value, 1)
+    Assert.assertEquals(o2.catchNothing(1).value, 1)
+    Assert.assertTrue(o2.catchNothing { throw Exception("") }.isNothing)
+    Assert.assertEquals(t1.catchFailure { throw Exception("") }.value, 1)
+    Assert.assertEquals(t2.catchFailure(1).value, 1)
+    Assert.assertTrue(t2.catchFailure { throw Exception("") }.isFailure)
   }
 
   @Test

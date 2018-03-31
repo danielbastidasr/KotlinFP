@@ -204,7 +204,7 @@ abstract class Try<T> internal constructor(): TryType<T> {
   /**
    * Return the current [TryType] or catch failures with [selector].
    */
-  fun catch(selector: () -> T): Try<T> {
+  fun catchFailure(selector: () -> T): Try<T> {
     return try {
       if (isSuccess) this.asTry() else success(selector())
     } catch (e: Exception) {
@@ -215,8 +215,8 @@ abstract class Try<T> internal constructor(): TryType<T> {
   /**
    * Return the current [TryType] or [fallback] if [isSuccess] is true.
    */
-  fun catch(fallback: T): Try<T> {
-    return catch { fallback }
+  fun catchFailure(fallback: T): Try<T> {
+    return catchFailure { fallback }
   }
 }
 

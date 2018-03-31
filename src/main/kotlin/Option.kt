@@ -200,7 +200,7 @@ abstract class Option<T> internal constructor(): OptionType<T> {
   /**
    * Return the current [OptionType] or catch failure with [selector].
    */
-  fun catch(selector: () -> T): Option<T> {
+  fun catchNothing(selector: () -> T): Option<T> {
     return try {
       if (isSome) this.asOption() else some(selector())
     } catch (e: Exception) {
@@ -211,8 +211,8 @@ abstract class Option<T> internal constructor(): OptionType<T> {
   /**
    * Return the current [OptionType] or [fallback] if [isNothing] is true.
    */
-  fun catch(fallback: T): Option<T> {
-    return catch { fallback }
+  fun catchNothing(fallback: T): Option<T> {
+    return catchNothing { fallback }
   }
 }
 
