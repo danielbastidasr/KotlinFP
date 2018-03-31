@@ -29,13 +29,6 @@ interface TryType<T>: OptionType<T> {
   val isFailure: Boolean get() = isNothing
 
   /**
-   * Return the current [TryType] or [fallback] if [isSuccess] is true.
-   */
-  fun successOrElse(fallback: TryConvertibleType<T>): Try<T> {
-    return if (isSuccess) this.asTry() else fallback.asTry()
-  }
-
-  /**
    * Return the current [TryType] or invoke [selector] to get a fallback
    * [TryConvertibleType].
    */
@@ -45,6 +38,13 @@ interface TryType<T>: OptionType<T> {
     } catch (e: Exception) {
       Try.failure(e)
     }
+  }
+
+  /**
+   * Return the current [TryType] or [fallback] if [isSuccess] is true.
+   */
+  fun successOrElse(fallback: TryConvertibleType<T>): Try<T> {
+    return successOrElse { fallback }
   }
 }
 
@@ -199,6 +199,24 @@ abstract class Try<T> internal constructor(): TryType<T> {
    */
   fun filter(selector: (T) -> Boolean, error: String = "Invalid value"): Try<T> {
     return filter(selector, Exception(error))
+  }
+
+  /**
+   * Return the current [TryType] or catch failures with [selector].
+   */
+  fun catch(selector: () -> T): Try<T> {
+    return try {
+      if (isSuccess) this.asTry() else success(selector())
+    } catch (e: Exception) {
+      Try.failure(e)
+    }
+  }
+
+  /**
+   * Return the current [TryType] or [fallback] if [isSuccess] is true.
+   */
+  fun catch(fallback: T): Try<T> {
+    return catch { fallback }
   }
 }
 

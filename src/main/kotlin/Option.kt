@@ -43,10 +43,11 @@ interface OptionType<T>: OptionConvertibleType<T>, TryConvertibleType<T> {
   }
 
   /**
-   * Return the current [OptionType] or [fallback] if [isNothing] is true.
+   * Get the current [value] or throw an [Exception].
    */
-  fun someOrElse(fallback: OptionConvertibleType<T>): Option<T> {
-    return if (isSome) this.asOption() else fallback.asOption()
+  @Throws(Exception::class)
+  fun getOrThrow(): T {
+    return value ?: throw Exception(valueError)
   }
 
   /**
@@ -62,11 +63,10 @@ interface OptionType<T>: OptionConvertibleType<T>, TryConvertibleType<T> {
   }
 
   /**
-   * Get the current [value] or throw an [Exception].
+   * Return the current [OptionType] or [fallback] if [isNothing] is true.
    */
-  @Throws(Exception::class)
-  fun getOrThrow(): T {
-    return value ?: throw Exception(valueError)
+  fun someOrElse(fallback: OptionConvertibleType<T>): Option<T> {
+    return someOrElse { fallback }
   }
 }
 
@@ -195,6 +195,24 @@ abstract class Option<T> internal constructor(): OptionType<T> {
     } catch (e: Exception) {
       nothing()
     }
+  }
+
+  /**
+   * Return the current [OptionType] or catch failure with [selector].
+   */
+  fun catch(selector: () -> T): Option<T> {
+    return try {
+      if (isSome) this.asOption() else some(selector())
+    } catch (e: Exception) {
+      Option.nothing()
+    }
+  }
+
+  /**
+   * Return the current [OptionType] or [fallback] if [isNothing] is true.
+   */
+  fun catch(fallback: T): Option<T> {
+    return catch { fallback }
   }
 }
 

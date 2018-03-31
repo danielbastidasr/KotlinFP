@@ -150,6 +150,23 @@ class OptionAndTryTest {
   }
 
   @Test
+  fun test_catchFailures_shouldWork() {
+    /// Setup
+    val o1 = Option.some(1)
+    val o2 = Option.nothing<Int>()
+    val t1 = Try.success(1)
+    val t2 = Try.failure<Int>("Error")
+
+    /// When & Then
+    Assert.assertEquals(o1.catch { throw Exception("") }.value, 1)
+    Assert.assertEquals(o2.catch(1).value, 1)
+    Assert.assertTrue(o2.catch { throw Exception("") }.isNothing)
+    Assert.assertEquals(t1.catch { throw Exception("") }.value, 1)
+    Assert.assertEquals(t2.catch(1).value, 1)
+    Assert.assertTrue(t2.catch { throw Exception("") }.isFailure)
+  }
+
+  @Test
   fun test_map_shouldWork() {
     /// Setup
     val o1 = Option.some(1)
