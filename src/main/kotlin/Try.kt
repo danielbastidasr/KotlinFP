@@ -115,21 +115,12 @@ sealed class Try<T>: TryType<T> {
      * Evaluate [supplier] and return a success [Try] if no error occurs.
      */
     @JvmStatic
-    fun <T> evaluate(supplier: () -> T?, error: Exception): Try<T> {
+    fun <T: Any> evaluate(supplier: () -> T): Try<T> {
       return try {
-        wrap(supplier(), error)
+        success(supplier())
       } catch (e: Exception) {
         failure(e)
       }
-    }
-
-    /**
-     * Convenience method to call [evaluate] with [error] message.
-     */
-    @JvmStatic
-    @JvmOverloads
-    fun <T> evaluate(supplier: () -> T?, error: String = "Invalid value"): Try<T> {
-      return evaluate(supplier, Exception(error))
     }
 
     /**

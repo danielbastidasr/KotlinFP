@@ -72,7 +72,6 @@ class OptionAndTryTest {
     val t4 = Try.wrap<Int>(null, "")
     val t5 = Try.evaluate({ 1 })
     val t6 = Try.evaluate({ throw Exception("Error") })
-    val t7 = Try.evaluate({ null }, "Error")
 
     /// When & Then
     Assert.assertEquals(o1.value, 1)
@@ -108,7 +107,6 @@ class OptionAndTryTest {
     Assert.assertFalse(t4.isSuccess)
     Assert.assertEquals(t5.value, 1)
     Assert.assertEquals(t6.error?.message, "Error")
-    Assert.assertEquals(t7.error?.message, "Error")
   }
 
   @Test
