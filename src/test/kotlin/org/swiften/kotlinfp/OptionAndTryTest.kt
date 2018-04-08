@@ -1,3 +1,4 @@
+package org.swiften.kotlinfp
 
 import org.testng.Assert
 import org.testng.annotations.Test
@@ -300,5 +301,30 @@ class OptionAndTryTest {
     Assert.assertEquals(t1f.error?.message, "Error 2")
     Assert.assertEquals(t2f.error?.message, "Error")
     Assert.assertEquals(t3f.error?.message, "Error 3")
+  }
+
+  @Test
+  fun test_doOnNextOrOnError_shouldWork() {
+    /// Setup
+    var valueCount = 0
+    var errorCount = 0
+    val o1 = Option.some(1)
+    val o2 = Option.nothing<Int>()
+    val t1 = Try.success(1)
+    val t2 = Try.failure<Int>()
+
+    /// When
+    o1.doOnNext { valueCount += it }
+    o1.doOnNothing { errorCount += 1 }
+    o2.doOnNext { valueCount += it }
+    o2.doOnNothing { errorCount += 1 }
+    t1.doOnNext { valueCount += it }
+    t1.doOnError { errorCount += 1 }
+    t2.doOnNext { valueCount += it }
+    t2.doOnError { errorCount += 1 }
+
+    /// Then
+    Assert.assertEquals(valueCount, 2)
+    Assert.assertEquals(errorCount, 2)
   }
 }

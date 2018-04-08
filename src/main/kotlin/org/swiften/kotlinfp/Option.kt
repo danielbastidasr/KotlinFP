@@ -1,3 +1,5 @@
+package org.swiften.kotlinfp
+
 /**
  * Created by haipham on 29/3/18.
  */
@@ -231,5 +233,21 @@ sealed class Option<T>: OptionType<T> {
    */
   fun catchNothing(fallback: T): Option<T> {
     return catchNothing { fallback }
+  }
+
+  /**
+   * Perform some side effects on the underlying [value].
+   */
+  fun doOnNext(selector: (T) -> Unit): Option<T> {
+    value?.let { selector(it) }
+    return this
+  }
+
+  /**
+   * Perform some side effects if [value] is null.
+   */
+  fun doOnNothing(selector: () -> Unit): Option<T> {
+    if (value == null) selector()
+    return this
   }
 }

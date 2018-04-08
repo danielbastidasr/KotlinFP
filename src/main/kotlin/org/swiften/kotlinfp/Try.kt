@@ -1,3 +1,5 @@
+package org.swiften.kotlinfp
+
 /**
  * Created by haipham on 29/3/18.
  */
@@ -240,5 +242,21 @@ sealed class Try<T>: TryType<T> {
    */
   fun catchFailure(fallback: T): Try<T> {
     return catchFailure { fallback }
+  }
+
+  /**
+   * Perform some side effects on the underlying [value].
+   */
+  fun doOnNext(selector: (T) -> Unit): Try<T> {
+    value?.let { selector(it) }
+    return this
+  }
+
+  /**
+   * Perform some side effects on the underlying [error].
+   */
+  fun doOnError(selector: (Exception) -> Unit): Try<T> {
+    error?.let { selector(it) }
+    return this
   }
 }

@@ -1,3 +1,5 @@
+package org.swiften.kotlinfp;
+
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
