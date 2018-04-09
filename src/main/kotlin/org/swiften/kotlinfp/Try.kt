@@ -91,6 +91,15 @@ sealed class Try<T>: TryType<T> {
      * Return a [Failure].
      */
     @JvmStatic
+    fun <T> failure(throwable: Throwable): Try<T> {
+      val exception = Exception(throwable.message, throwable)
+      return failure(exception)
+    }
+
+    /**
+     * Return a [Failure].
+     */
+    @JvmStatic
     @JvmOverloads
     fun <T> failure(error: String = "Invalid value"): Try<T> {
       return Failure(Exception(error))

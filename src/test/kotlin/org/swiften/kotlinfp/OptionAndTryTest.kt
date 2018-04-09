@@ -15,6 +15,7 @@ class OptionAndTryTest {
     val o2 = Option.nothing<Int>()
     val t1 = Try.success(1)
     val t2 = Try.failure<Int>("Error")
+    val t3 = Try.failure<Int>(Throwable("Throwable!"))
 
     /// When & Then
     when(o1) {
@@ -35,6 +36,11 @@ class OptionAndTryTest {
     when(t2) {
       is Try.Success<Int> -> Assert.fail("Should not reach here")
       is Try.Failure<Int> -> Assert.assertEquals(t2.error.message, "Error")
+    }
+
+    when(t3) {
+      is Try.Success<Int> -> Assert.fail("Should not reach here")
+      is Try.Failure<Int> -> Assert.assertEquals(t3.error.message, "Throwable!")
     }
   }
 
